@@ -1,0 +1,62 @@
+☑ Add "Open with Code" action to Windows Explorer file context menu
+☑ Add "Open with Code" action to Windows Explorer directory context menu
+☑ ️ Register Code as an editor for supported file types
+
+There's some interesting UTF-8 combining character stuff here, I think:
+
+☑ ️Register Code as an editor for supported file types
+
+Now delete the second character in that line, which displays as a wide
+space, even though emacs' C-x = says it's a regular space: you see a
+shaded, filled-in checkmark box:
+
+☑️Register Code as an editor for supported file types
+
+OTOH, start with the above. With point on R, backspace 3 times. No more
+spaces and same checkbox. But in the original, going forward it's only 2!
+
+☑Register Code as an editor for supported file types
+
+Why? See below: the second character in the first line is a space
+(0x20), and the third is the "emoji presentation" code point U+fe0f.
+That makes the space get shown here as wider than usual. Delete the
+space, and now the emoji presentation code point applies to the checkbox.
+
+Code points in "☑ ️R":
+
+U+2611    U+20   U+fe0f U+52
+checkbox  space  emoji  'R'
+
+Encoded in UTF-8 as:
+
+e2 98 91  32     ef b8 8f  52
+checkbox  space  emoji     'R'
+
+So if there's no U+fe0f or U+fe0e, it's text presentation.
+
+For the emoji-fied version "☑️R", code points are
+
+U+2611 U+fe0f U+52
+
+encoded as bytes
+
+e2 98 91 ef b8 8f 52
+
+Emacs says the checkbox (regardless of how it's displayed) is 0x2611,
+"ballot box with check".
+
+2026-01-07: Ah, I think this is it:
+https://hecate.pink/blog/2026/trans-flag-emoji/
+
+"FEOF can be slapped after a symbol - without a ZWJ! - to indicate that
+the preceding codepoint should be interpreted for Emoji Presentation,
+and not textual mode - her sister, U+FE0E, does that. If you want to see
+this in action: [⚧︎⚧️] is [U+26A7 U+FE0E U+26A7 U+FEOF]. Same codepoint,
+two render modes!"
+
+And sure enough, if you do the same with the checkbox U+2611, you get
+the above behavior: put U+2611 U+fe0e U+2611 U+fe0f into
+https://unicode.link/inspect !
+
+Emoji presentation checkbox is U+2611 U+fe0f, encoded into UTF-8 as
+(https://viewtf-8.com/):
